@@ -40,4 +40,11 @@ class Event extends Model
             get: fn () => Carbon::parse($this->end_date)->format('H時i分')
         );
     }
+
+    protected function editEventDate(): Attribute
+    {
+        return new Attribute(
+            get: fn () => Carbon::parse($this->start_date)->format('Y-m-d')
+        );
+    }
 }
