@@ -21,5 +21,14 @@ class EventService
         $start = $date . ' ' . $time;
         return Carbon::createFromFormat('Y-m-d H:i',$start);
     }
+
+    public static function countEventDuplication($eventDate, $startTime, $endTime)
+    {
+        return DB::table('events')
+        ->whereDate('start_date', $eventDate)
+        ->whereTime('start_date', '<' ,$endTime)
+        ->whereTime('end_date', '>' ,$startTime)
+        ->count();
+    }
 }
 
