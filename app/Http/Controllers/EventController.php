@@ -13,15 +13,21 @@ class EventController extends Controller
 {
     public function index()
     {
+        $sumNumOfPeople = DB::table('reservations')
+                            ->select('event_id', DB::raw('SUM(number_of_people) as number_of_people'))
+                            ->whereNull('canceled_date')
+                            ->groupBy('event_id');
         $today = Carbon::today();
 
         $events = DB::table('events')
-        ->whereDate('start_date', '>=', $today)
-        ->orderBy('start_date', 'asc')
-        ->paginate(10);
+                  ->leftJoinSub($sumNumOfPeople, 'sumNumOfPeople', function ($join) {
+                      $join->on('events.id', '=', 'sumNumOfPeople.event_id');
+                  })
+                  ->whereDate('start_date', '>=', $today)
+                  ->orderBy('start_date', 'asc')
+                  ->paginate(10);
 
-        return view('manager.events.index',
-        compact('events'));
+        return view('manager.events.index',compact('events'));
     }
 
     public function create()
@@ -61,9 +67,21 @@ class EventController extends Controller
         $eventDate = $event->eventDate;
         $startTime = $event->startTime;
         $endTime = $event->endTime;
+        $users = $event->users;
+        $reservedUserInfo = [];
+
+        foreach ($users as $user) {
+
+            $temp = [
+                'name' => $user->name,
+                'number_of_people' => $user->pivot->number_of_people,
+                'canceled_date' => $user->pivot->canceled_date,
+            ];
+            array_push($reservedUserInfo, $temp);
+        }
 
         return view('manager.events.show',
-        compact('event', 'eventDate', 'startTime', 'endTime'));
+        compact('event', 'eventDate', 'startTime', 'endTime', 'users', 'reservedUserInfo'));
     }
 
     public function edit(Event $event)
@@ -117,12 +135,19 @@ class EventController extends Controller
 
     public function past()
     {
+        $sumNumOfPeople = DB::table('reservations')
+                            ->select('event_id', DB::raw('SUM(number_of_people) as number_of_people'))
+                            ->whereNull('canceled_date')
+                            ->groupBy('event_id');
         $today = Carbon::today();
 
         $events = DB::table('events')
-        ->whereDate('start_date', '<', $today)
-        ->orderBy('start_date', 'desc')
-        ->paginate(10);
+                    ->leftJoinSub($sumNumOfPeople, 'sumNumOfPeople', function ($join) {
+                        $join->on('events.id', '=', 'sumNumOfPeople.event_id');
+                    })
+                    ->whereDate('start_date', '<', $today)
+                    ->orderBy('start_date', 'desc')
+                    ->paginate(10);
 
         return view('manager.events.past',compact('events'));
     }

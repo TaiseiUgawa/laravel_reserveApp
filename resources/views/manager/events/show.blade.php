@@ -70,6 +70,36 @@
   </div>
  </div>
 </div>
+<div class="py-4">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="max-w-2xl py-4 mx-auto">
+                @if (!$users->isEmpty())
+                <div class="text-center py-4">予約情報</div>
+                <table class="table-auto w-full text-left whitespace-no-wrap">
+                    <thead>
+                      <tr>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">予約者名</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">予約人数</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($reservedUserInfo as $userInfo)
+                        <tr>
+                            <td class="px-4 py-3">{{ $userInfo['name'] }}</td>
+                            <td class="px-4 py-3">{{ $userInfo['number_of_people'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @else
+                <div class="text-center py-4">予約情報</div>
+                    予約情報がまだありません
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
     <script src="{{ mix('js/flatpickr.js') }}"></script>
 </x-app-layout>
 
