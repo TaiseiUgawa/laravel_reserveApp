@@ -30,5 +30,21 @@ class EventService
         ->whereTime('end_date', '>' ,$startTime)
         ->count();
     }
+
+    public static function getEventOfWeek($selectDate, $sevenDaysLayter)
+    {
+        $sumNumOfPeople = DB::table('reservations')
+                            ->select('event_id', DB::raw('SUM(number_of_people) as number_of_people'))
+                            ->whereNull('canceled_date')
+                            ->groupBy('event_id');
+
+        return  DB::table('events')
+                ->leftJoinSub($sumNumOfPeople, 'sumNumOfPeople', function ($join) {
+                    $join->on('events.id', '=', 'sumNumOfPeople.event_id');
+                })
+                ->whereBetween('start_date', [$selectDate, $sevenDaysLayter])
+                ->orderBy('start_date', 'asc')
+                ->get();
+    }
 }
 
