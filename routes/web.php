@@ -5,6 +5,7 @@ use App\Http\Controllers\LivewireTestController;
 use App\Http\Controllers\AlpineTestController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ResavationController;
+use App\Http\Controllers\MyPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,11 @@ Route::prefix('manager')
 Route::middleware('can:user-higher')
 ->group(function(){
     Route::get('/dashboard', [ResavationController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage.index');
+    Route::get('/mypage/{id}', [MyPageController::class, 'show'])->name('mypage.show');
+    Route::post('/mypage/{id}', [MyPageController::class, 'cancel'])->name('mypage.cancel');
+
     Route::get('/{id}', [ResavationController::class, 'detail'])->name('events.detail');
     Route::post('/{id}', [ResavationController::class, 'reserve'])->name('events.reserve');
 });
