@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ResavationController extends Controller
 {
-    public function dashboard()
-    {
-        return view('dashboard');
-    }
+    public function dashboard() { return view('dashboard'); }
 
     public function detail($id)
     {
@@ -31,7 +28,13 @@ class ResavationController extends Controller
         }
         else { $reserablePeople = $event->max_people; }
 
-        return view('event-detail', compact('event', 'reserablePeople'));
+        $isReserved = Reservation::where('user_id', '=', Auth::id())
+                                    ->where('event_id', '=', $id)
+                                    ->where('canceled_date', '=', null)
+                                    ->latest()
+                                    ->first();
+
+        return view('event-detail', compact('event', 'reserablePeople', 'isReserved'));
     }
 
     public function reserve(Request $request)
@@ -44,16 +47,14 @@ class ResavationController extends Controller
                             ->having('event_id', '=', $event->id)
                             ->first();
 
-        if(is_null($sumReservedPeople) || $event->max_people >= ($sumReservedPeople + $request->reserved_people) )
+        if(is_null($sumReservedPeople) || $event->max_people >= ($sumReservedPeople->number_of_people + $request->reserved_people) )
         {
             Reservation::create([
                 'user_id' => Auth::id(),
                 'event_id' => $request['id'],
                 'number_of_people' => $request['reserved_people'],
             ]);
-
             session()->flash('status', '予約が完了しました');
-
             return to_route('dashboard');
         }
         else

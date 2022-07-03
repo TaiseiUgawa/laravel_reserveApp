@@ -51,16 +51,27 @@
                                     {{ $event->max_people }}
                                 </div>
 
-                                <div class="mt-4">
-                                    <x-jet-label for="reserved_people" value="予約人数" />
-                                    <select name="reserved_people">
-                                        @for($i = 1; $i <= $reserablePeople; $i++)
-                                            <option value="{{ $i }}">{{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                                <input type="hidden" name="id" value="{{ $event->id }}">
-                                    <x-jet-button class="ml-4">予約する</x-jet-button>
+                                @if ( $reserablePeople <= 0 )
+                                    <span class="text-xs text-red-500">このイベントは予約がいっぱいです</span>
+                                @else
+                                    <div class="mt-4">
+                                        <x-jet-label for="reserved_people" value="予約人数" />
+                                        <select name="reserved_people">
+                                            @for($i = 1; $i <= $reserablePeople; $i++)
+                                                <option value="{{ $i }}">{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                @endif
+
+                                @if ($isReserved === null)
+                                    <input type="hidden" name="id" value="{{ $event->id }}">
+                                    @if ( $reserablePeople > 0 )
+                                        <x-jet-button class="ml-4">予約する</x-jet-button>
+                                    @endif
+                                @else
+                                    <span class="text-sm">このイベントは既に予約されています</span>
+                                @endif
                             </div>
                         </div>
                     </form>
